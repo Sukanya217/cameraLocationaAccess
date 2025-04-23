@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Camera/Location Access</title>
+    <style>
+      .topBar {
+        display: flex;
+        justify-content: space-between;
+        padding: 5px 10px 0px 10px;
+        background: linear-gradient(
+          90deg,
+          rgba(2, 0, 36, 1) 0%,
+          rgba(82, 52, 20, 1) 21%,
+          rgba(242, 145, 41, 1) 90%
+        );
+      }
+      .topBar .navicon img {
+        height: 60px;
+      }
+      .userDetails {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .userDetails p {
+        margin: 0;
+        color: white;
+      }
+      .userDetails .profile {
+        align-content: center;
+        height: 30px;
+        width: 30px;
+        background: white;
+        border-radius: 50%;
+        align-self: center;
+        margin: 0;
+        color: black;
+      }
+      .userDetails .profile p {
+        color: #c7731a;
+      }
+      body {
+        font-family: sans-serif;
+        text-align: center;
+        margin: 0;
+      }
+      .thankyouDiv {
+        padding: 10px;
+        background: white;
+        width: 300px;
+        margin: auto;
+        border-radius: 12px;
+        box-shadow: 0 0 10px grey;
+      }
+      .thankyouSection {
+        height: calc(100vh - 100px);
+        align-items: center;
+        align-self: center;
+        align-content: center;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="topBar">
+        <div class="navicon">
+          <img src="./images/sathyamangalamLogo.png" alt="Logo" />
+        </div>
+        <div class="userDetails">
+          <p>Emp ID: 123456</p>
+          <div class="profile"><p>P</p></div>
+        </div>
+      </div>
+    </header>
+    <main>
+      <section class="thankyouSection">
+        <div class="thankyouDiv">
+          <p>Attendance Marked Successfully</p>
+          <button>Logout</button>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
