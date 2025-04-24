@@ -22,6 +22,9 @@
         margin: auto;
         align-content: center;
         height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
       }
       .loginSection {
         padding: 30px;
@@ -29,6 +32,7 @@
         border-radius: 12px;
         box-shadow: 0 0 12px grey;
         background: white;
+        width: 100%;
       }
       .loginSection img {
         height: 150px;
@@ -44,6 +48,12 @@
         text-align: center;
         user-select: none;
       }
+      .error-message {
+        color: red;
+        font-size: 14px;
+        margin-top: 10px;
+        text-align: center;
+      }
       @media only screen and (max-width: 545px) {
         .loginForm {
           width: 90%;
@@ -52,51 +62,86 @@
     </style>
   </head>
   <body>
-    <header></header>
     <main>
       <section class="loginForm">
         <div class="loginSection">
-          <div class="logoImage">
+          <div class="logoImage mb-3">
             <img src="./images/sathyamangalamLogo.png" alt="Logo" />
           </div>
-          <div>
-            <form action="/action_page.php">
-              <div class="mb-3 mt-3">
-                <input
-                  type="email"
-                  class="form-control"
-                  id="employeeId"
-                  placeholder="Enter Employee Id"
-                  name="email"
-                />
-              </div>
-              <div class="mb-3">
-                <input
-                  type="password"
-                  class="form-control"
-                  id="pwd"
-                  placeholder="Enter password"
-                  name="pswd"
-                />
-              </div>
-              <div class="form-check mb-3">
-                <label class="form-check-label">
-                  <input
-                    class="form-check-input"
-                    type="checkbox"
-                    name="remember"
-                  />
-                  Remember me
-                </label>
-              </div>
-              <div class="loginButton">
-                <button type="submit" class="btn btn-primary">Login</button>
-              </div>
-            </form>
-          </div>
+          <form id="loginForm">
+            <div class="mb-3">
+              <label for="employeeId" class="form-label">Employee ID</label>
+              <input
+                type="text"
+                class="form-control"
+                id="employeeId"
+                placeholder="Enter Employee ID"
+                required
+              />
+            </div>
+            <div class="mb-3">
+              <label for="password" class="form-label">Password</label>
+              <input
+                type="password"
+                class="form-control"
+                id="password"
+                placeholder="Enter Password"
+                required
+              />
+            </div>
+            <div class="form-check mb-3">
+              <input class="form-check-input" type="checkbox" id="rememberMe" />
+              <label class="form-check-label" for="rememberMe">
+                Remember me
+              </label>
+            </div>
+            <div class="loginButton">
+              <button type="submit" class="btn btn-primary w-100">Login</button>
+            </div>
+            <div id="errorMsg" class="error-message"></div>
+          </form>
         </div>
       </section>
     </main>
-    <footer></footer>
+
+    <script>
+      document
+        .getElementById("loginForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+
+          const employeeId = document.getElementById("employeeId").value.trim();
+          const password = document.getElementById("password").value.trim();
+          const errorMsg = document.getElementById("errorMsg");
+
+          errorMsg.textContent = ""; // Clear previous errors
+
+          fetch("http://192.168.3.100:7400/api/Employee/Login", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ employeeId, password }),
+          })
+            .then((response) => {
+              if (!response.ok) {
+                return response.json().then((err) => {
+                  throw new Error(err.message || "Login failed");
+                });
+              }
+              return response.json();
+            })
+            .then((data) => {
+              // Redirect on successful login
+              sessionStorage.setItem("employeeId", employeeId);
+              window.location.href = "/cameraLocationAccess/index.html";
+            })
+            .catch((error) => {
+              errorMsg.textContent =
+                error.message || "Invalid login credentials.";
+              console.error("Login error:", error);
+            });
+        });
+    </script>
   </body>
 </html>

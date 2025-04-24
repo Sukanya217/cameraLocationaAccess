@@ -161,7 +161,7 @@
           <img src="./images/sathyamangalamLogo.png" alt="Logo" />
         </div>
         <div class="userDetails">
-          <p>Emp ID: 123456</p>
+          <p id="empIdText">Emp ID:</p>
           <div class="profile" id="profileWrapper">
             <p id="profileBtn">P</p>
             <div id="profilePopup" class="profile-popup">
@@ -201,9 +201,12 @@
       const locationText = document.getElementById("location");
       const capturedLocation = document.getElementById("capturedLocation");
       const submitBtn = document.querySelector(".submitBtn");
+      const empIdText = document.getElementById("empIdText");
 
       let currentLatitude, currentLongitude;
       let locationWatcherID;
+      let employeeId = sessionStorage.getItem("employeeId") || "";
+      empIdText.textContent = `Emp ID: ${employeeId}`;
 
       async function startCamera() {
         try {
@@ -263,18 +266,55 @@
         capturedSection.style.display = "block";
       });
 
-      submitBtn.addEventListener("click", () => {
-        if (window.localStream) {
-          window.localStream.getTracks().forEach((track) => track.stop());
+      submitBtn.addEventListener("click", async () => {
+        if (!employeeId) {
+          alert("Employee ID not found in session.");
+          return;
         }
-        if (locationWatcherID !== undefined) {
-          navigator.geolocation.clearWatch(locationWatcherID);
-        }
-        window.location.href = "thankyou.html";
+
+        const canvas = document.createElement("canvas");
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const context = canvas.getContext("2d");
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob(async (blob) => {
+          const formData = new FormData();
+          formData.append("EmployeeId", employeeId);
+          formData.append("Latitude", currentLatitude || "");
+          formData.append("Longitude", currentLongitude || "");
+          formData.append("FormFile", blob, "capture.png");
+
+          try {
+            const response = await fetch(
+              "http://192.168.3.100:7400/api/Attendance/AddAttendanceLog",
+              {
+                method: "POST",
+                body: formData,
+              }
+            );
+
+            if (response.ok) {
+              if (window.localStream) {
+                window.localStream.getTracks().forEach((track) => track.stop());
+              }
+              if (locationWatcherID !== undefined) {
+                navigator.geolocation.clearWatch(locationWatcherID);
+              }
+              window.location.href = "thankyou.html";
+            } else {
+              const result = await response.json();
+              alert("Failed to submit: " + result.message);
+            }
+          } catch (error) {
+            alert("Error submitting data.");
+            console.error(error);
+          }
+        }, "image/png");
       });
 
       startCamera();
       trackLocation();
+
       const profileBtn = document.getElementById("profileBtn");
       const profilePopup = document.getElementById("profilePopup");
 
@@ -283,17 +323,15 @@
           profilePopup.style.display === "block" ? "none" : "block";
       });
 
-      // Optional: hide popup if clicked outside
       document.addEventListener("click", (e) => {
         if (!document.getElementById("profileWrapper").contains(e.target)) {
           profilePopup.style.display = "none";
         }
       });
 
-      // Handle logout
       document.getElementById("logoutBtn").addEventListener("click", () => {
-        alert("Logging out...");
-        window.location.href = "login.html"; // Change to your logout route
+        sessionStorage.clear();
+        window.location.href = "login.html";
       });
     </script>
   </body>
